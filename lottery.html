@@ -11,6 +11,12 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
@@ -19,6 +25,8 @@
             color: white;
             min-height: 100vh;
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: none;
         }
 
         .lottery-app {
@@ -59,6 +67,7 @@
             flex-direction: column;
             align-items: center;
             padding: 20px 0;
+            -webkit-overflow-scrolling: touch;
         }
 
         .wheel-container {
@@ -66,10 +75,10 @@
             width: 300px;
             height: 300px;
             margin-bottom: 30px;
+            -webkit-transform: translateZ(0);
             transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
-            perspective: 1000px;
-            transform-style: preserve-3d;
         }
 
         #wheelCanvas {
@@ -81,10 +90,9 @@
             box-shadow: 
                 0 0 30px rgba(255, 215, 0, 0.3),
                 inset 0 0 40px rgba(0, 0, 0, 0.2);
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         /* 指针 */
@@ -140,7 +148,7 @@
             opacity: 0.9;
         }
 
-        /* 底部按钮 */
+        /* 底部按钮 - 优化点击区域 */
         .lottery-footer {
             padding: 30px 0;
             display: flex;
@@ -164,6 +172,19 @@
             gap: 12px;
             box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
             transition: all 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 60px;
+            position: relative;
+        }
+
+        .start-btn::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
         }
 
         .start-btn:active {
@@ -191,6 +212,8 @@
             justify-content: center;
             gap: 10px;
             transition: all 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         .back-btn:active {
@@ -323,7 +346,7 @@
         <main class="lottery-main">
             <div class="wheel-container">
                 <!-- 转盘Canvas -->
-                <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                <canvas id="wheelCanvas" width="600" height="600"></canvas>
                 
                 <!-- 指针 -->
                 <div class="wheel-pointer">
@@ -390,11 +413,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
-    // 转盘抽奖系统 - 多圈旋转版
+    // 转盘抽奖系统 - 优化iOS兼容性版本
     document.addEventListener('DOMContentLoaded', function() {
         console.log('抽奖页面加载完成');
         
-        // 奖品数据 - 写死在代码中
+        // 奖品数据
         const prizes = [
             { id: 1, name: "一等奖", description: "iPhone 15 Pro", color: "#FF6B6B" },
             { id: 2, name: "二等奖", description: "iPad Air", color: "#4ECDC4" },
@@ -412,9 +435,9 @@
         let animationId = null;
         let startTimestamp = null;
         
-        // 动画参数 - 可调整
-        const TOTAL_ROTATIONS = 5; // 总共转5圈
-        const ANIMATION_DURATION = 5000; // 动画总时长5秒
+        // 动画参数
+        const TOTAL_ROTATIONS = 5;
+        const ANIMATION_DURATION = 5000;
         
         // DOM元素
         const wheelCanvas = document.getElementById('wheelCanvas');
@@ -425,19 +448,34 @@
         const resultPrize = document.getElementById('resultPrize');
         const closeModal = document.getElementById('closeModal');
         
+        // 确保Canvas在iOS上有正确的高清渲染
+        function setupCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = wheelCanvas.getBoundingClientRect();
+            
+            wheelCanvas.width = rect.width * dpr;
+            wheelCanvas.height = rect.height * dpr;
+            
+            const ctx = wheelCanvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            
+            return ctx;
+        }
+        
         // 初始化Canvas
-        const ctx = wheelCanvas.getContext('2d');
-        drawWheel();
+        const ctx = setupCanvas();
         
         // 绘制转盘
         function drawWheel() {
-            const centerX = wheelCanvas.width / 2;
-            const centerY = wheelCanvas.height / 2;
+            const width = wheelCanvas.width / (window.devicePixelRatio || 1);
+            const height = wheelCanvas.height / (window.devicePixelRatio || 1);
+            const centerX = width / 2;
+            const centerY = height / 2;
             const radius = Math.min(centerX, centerY) - 10;
             const sliceAngle = (2 * Math.PI) / prizes.length;
             
             // 清空画布
-            ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            ctx.clearRect(0, 0, width, height);
             
             // 绘制每个扇形
             for (let i = 0; i < prizes.length; i++) {
@@ -507,7 +545,7 @@
             startBtn.disabled = true;
             startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 抽奖中...';
             
-            // 随机选择一个奖品（7个奖品概率相等）
+            // 随机选择一个奖品
             const randomIndex = Math.floor(Math.random() * prizes.length);
             selectedPrize = prizes[randomIndex];
             console.log('抽中:', selectedPrize.name);
@@ -516,7 +554,7 @@
             rotateWheel();
         }
         
-        // 旋转转盘 - 多圈丝滑版本
+        // 旋转转盘
         function rotateWheel() {
             const startRotation = currentRotation;
             startTimestamp = null;
@@ -525,11 +563,10 @@
             const sliceAngle = (2 * Math.PI) / prizes.length;
             const prizeIndex = prizes.findIndex(p => p.id === selectedPrize.id);
             
-            // 目标角度：确保选中的奖品停在指针位置
-            // 指针在顶部（-π/2），奖品中心应该对准指针
+            // 目标角度
             const targetAngle = - (prizeIndex * sliceAngle) - (sliceAngle / 2) + (Math.PI / 2);
             
-            // 额外的完整圈数（5圈）
+            // 额外的完整圈数
             const extraRotations = TOTAL_ROTATIONS * 2 * Math.PI;
             
             // 最终目标角度
@@ -546,16 +583,16 @@
                 const elapsed = timestamp - startTimestamp;
                 const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
                 
-                // 使用三段式缓动函数：快速启动 → 匀速旋转 → 缓慢停止
+                // 缓动函数
                 let ease;
                 if (progress < 0.2) {
-                    // 前20%：快速启动（二次缓入）
+                    // 前20%：快速启动
                     ease = easeInQuad(progress / 0.2) * 0.2;
                 } else if (progress < 0.85) {
                     // 中间65%：匀速旋转
                     ease = 0.2 + (progress - 0.2) / 0.65 * 0.65;
                 } else {
-                    // 后15%：缓慢停止（二次缓出）
+                    // 后15%：缓慢停止
                     const lastProgress = (progress - 0.85) / 0.15;
                     ease = 0.85 + easeOutQuad(lastProgress) * 0.15;
                 }
@@ -570,7 +607,7 @@
                 if (progress < 1) {
                     animationId = requestAnimationFrame(animate);
                 } else {
-                    // 动画完成，确保角度精确
+                    // 动画完成
                     currentRotation = finalTargetRotation;
                     drawWheel();
                     
@@ -583,12 +620,11 @@
             animationId = requestAnimationFrame(animate);
         }
         
-        // 缓动函数：二次缓入
+        // 缓动函数
         function easeInQuad(t) {
             return t * t;
         }
         
-        // 缓动函数：二次缓出
         function easeOutQuad(t) {
             return 1 - (1 - t) * (1 - t);
         }
@@ -608,7 +644,6 @@
             
             // 庆祝效果
             if (typeof confetti === 'function') {
-                // 多个彩纸效果
                 confetti({
                     particleCount: 150,
                     spread: 70,
@@ -639,8 +674,22 @@
             }
         }
         
-        // 事件监听
+        // 事件监听 - 优化iOS点击
         startBtn.addEventListener('click', startLottery);
+        
+        // 为iOS添加额外的触摸事件支持
+        startBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            this.style.transform = 'scale(0.98)';
+        }, { passive: false });
+        
+        startBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            this.style.transform = 'scale(1)';
+            if (!isSpinning) {
+                startLottery();
+            }
+        }, { passive: false });
         
         backBtn.addEventListener('click', function() {
             window.location.href = 'index.html';
@@ -657,18 +706,10 @@
             }
         });
         
-        // 添加触摸事件支持
-        startBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            this.style.transform = 'scale(0.98)';
-        });
+        // 重新绘制转盘
+        drawWheel();
         
-        startBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            this.style.transform = 'scale(1)';
-        });
-        
-        console.log('多圈抽奖系统初始化完成');
+        console.log('优化版抽奖系统初始化完成');
     });
 </script>
 </body>
