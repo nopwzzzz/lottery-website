@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>幸运大抽奖</title>
+    <title>🎁 瓜瓜的惊喜盲盒</title>
     <style>
-        /* 手机专用样式 - 简洁版 */
+        /* ========== 全局重置 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -16,28 +16,30 @@
 
         html, body {
             height: 100%;
-            overflow: hidden;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            /* 背景色改为与首页相同的紫色渐变 */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
-            overscroll-behavior: none;
         }
 
+        /* ========== 应用容器 ========== */
         .lottery-app {
             max-width: 100%;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 0 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* 头部样式 */
+        /* ========== 头部 ========== */
         .lottery-header {
             text-align: center;
             padding: 30px 0 20px;
@@ -60,21 +62,27 @@
             font-weight: 300;
         }
 
-        /* 转盘区域 */
+        .remain-count {
+            margin-top: 5px;
+            font-size: 15px;
+            color: #ffd700;
+        }
+
+        /* ========== 转盘区域 ========== */
         .lottery-main {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             padding: 20px 0;
-            -webkit-overflow-scrolling: touch;
         }
 
         .wheel-container {
             position: relative;
             width: 300px;
             height: 300px;
-            margin-bottom: 30px;
+            margin: 0 auto 30px;
             -webkit-transform: translateZ(0);
             transform: translateZ(0);
             -webkit-backface-visibility: hidden;
@@ -87,15 +95,12 @@
             border-radius: 50%;
             background: #1a1a2e;
             border: 6px solid #ffd700;
-            box-shadow: 
-                0 0 30px rgba(255, 215, 0, 0.3),
-                inset 0 0 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 40px rgba(0, 0, 0, 0.2);
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        /* 指针 */
         .wheel-pointer {
             position: absolute;
             top: -20px;
@@ -113,44 +118,9 @@
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
-        /* 奖品列表 */
-        .prize-list {
-            width: 100%;
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .prize-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .prize-item:last-child {
-            border-bottom: none;
-        }
-
-        .prize-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-
-        .prize-name {
-            font-size: 15px;
-            opacity: 0.9;
-        }
-
-        /* 底部按钮 - 优化点击区域 */
+        /* ========== 按钮区域 ========== */
         .lottery-footer {
-            padding: 30px 0;
+            padding: 30px 0 40px;
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -175,21 +145,10 @@
             -webkit-appearance: none;
             appearance: none;
             min-height: 60px;
-            position: relative;
-        }
-
-        .start-btn::after {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
         }
 
         .start-btn:active {
             transform: scale(0.98);
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
         }
 
         .start-btn:disabled {
@@ -220,7 +179,7 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
-        /* 中奖弹窗 */
+        /* ========== 中奖弹窗（奖品+悄悄话） ========== */
         .modal {
             display: none;
             position: fixed;
@@ -228,7 +187,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             z-index: 100;
             align-items: center;
             justify-content: center;
@@ -237,10 +196,10 @@
 
         .modal-content {
             background: linear-gradient(135deg, #1a1a2e, #16213e);
-            padding: 40px 30px;
-            border-radius: 20px;
+            padding: 30px 20px;
+            border-radius: 24px;
             width: 100%;
-            max-width: 350px;
+            max-width: 380px;
             text-align: center;
             border: 2px solid #ffd700;
             box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
@@ -248,19 +207,13 @@
         }
 
         @keyframes modalIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .modal-icon {
             font-size: 60px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             animation: bounce 0.5s infinite alternate;
         }
 
@@ -270,15 +223,38 @@
         }
 
         .modal-content h2 {
-            font-size: 24px;
-            margin-bottom: 15px;
+            font-size: 26px;
+            margin-bottom: 10px;
             color: #ffd700;
         }
 
-        .modal-content p {
-            font-size: 18px;
-            margin-bottom: 30px;
-            opacity: 0.9;
+        .modal-prize-image {
+            width: 100%;
+            max-height: 160px;
+            object-fit: contain;
+            margin: 10px 0;
+            border-radius: 16px;
+            background: white;
+            padding: 8px;
+        }
+
+        .prize-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 10px 0 5px;
+            color: #fff;
+        }
+
+        .secret-message {
+            font-size: 16px;
+            color: #ffd700;
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 12px;
+            margin: 15px 0;
+            line-height: 1.5;
+            border-left: 4px solid #ff6b6b;
+            text-align: left;
         }
 
         .modal-btn {
@@ -298,419 +274,481 @@
             transform: scale(0.98);
         }
 
-        /* 响应式调整 */
-        @media (max-width: 375px) {
-            .lottery-app {
-                padding: 0 15px;
-            }
-            
-            .wheel-container {
-                width: 280px;
-                height: 280px;
-            }
-            
-            .lottery-header h1 {
-                font-size: 24px;
-            }
-            
-            .prize-list {
-                padding: 15px;
-            }
-            
-            .prize-name {
-                font-size: 14px;
-            }
+        /* ========== 集齐彩蛋弹窗 ========== */
+        .egg-modal .modal-content {
+            max-width: 420px;
         }
 
-        @media (min-width: 768px) {
-            .wheel-container {
-                width: 350px;
-                height: 350px;
-            }
-            
-            .lottery-header h1 {
-                font-size: 32px;
-            }
+        .egg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .egg-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .egg-item img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ffd700;
+        }
+
+        .egg-item span {
+            display: block;
+            margin-top: 6px;
+            font-size: 13px;
+            color: #ffd700;
+        }
+
+        .egg-message {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 375px) {
+            .wheel-container { width: 280px; height: 280px; }
+            .lottery-header h1 { font-size: 24px; }
         }
     </style>
 </head>
 <body>
     <div class="lottery-app">
-        <!-- 顶部标题 -->
+        <!-- 头部标题 -->
         <header class="lottery-header">
-            <h1><i class="fas fa-gift"></i> 幸运大抽奖</h1>
-            <p class="subtitle">点击下方按钮开始抽奖</p>
+            <h1>🎁 瓜瓜的惊喜盲盒</h1>
+            <p class="subtitle">点击下方盲盒，拆开瓜瓜的心意</p>
+            <p id="remainHint" class="remain-count">剩余 7 个盲盒</p>
         </header>
         
-        <!-- 转盘区域 -->
+        <!-- 转盘主体（无奖品列表，完全神秘） -->
         <main class="lottery-main">
             <div class="wheel-container">
-                <!-- 转盘Canvas -->
                 <canvas id="wheelCanvas" width="600" height="600"></canvas>
-                
-                <!-- 指针 -->
                 <div class="wheel-pointer">
                     <div class="pointer-arrow"></div>
                 </div>
             </div>
-            
-            <!-- 奖品列表（展示用） -->
-            <div class="prize-list">
-                <div class="prize-item">
-                    <span class="prize-color" style="background: #FF6B6B;"></span>
-                    <span class="prize-name">一等奖：iPhone 15 Pro</span>
-                </div>
-                <div class="prize-item">
-                    <span class="prize-color" style="background: #4ECDC4;"></span>
-                    <span class="prize-name">二等奖：iPad Air</span>
-                </div>
-                <div class="prize-item">
-                    <span class="prize-color" style="background: #45B7D1;"></span>
-                    <span class="prize-name">三等奖：AirPods Pro</span>
-                </div>
-                <div class="prize-item">
-                    <span class="prize-color" style="background: #96CEB4;"></span>
-                    <span class="prize-name">四等奖：小米手环</span>
-                </div>
-                <div class="prize-item">
-                    <span class="prize-color" style="background: #FECA57;"></span>
-                    <span class="prize-name">五等奖：100元红包</span>
-                </div>
-                <div class="prize-item">
-                    <span class="prize-color" style="background: #FF9FF3;"></span>
-                    <span class="prize-name">六等奖：50元优惠券</span>
-                </div>
-                <div class="prize-item">
-                    <span class="prize-color" style="background: #54A0FF;"></span>
-                    <span class="prize-name">七等奖：谢谢参与</span>
-                </div>
-            </div>
         </main>
         
-        <!-- 控制按钮 -->
+        <!-- 底部按钮 -->
         <footer class="lottery-footer">
             <button id="startBtn" class="start-btn">
-                <i class="fas fa-play"></i> 开始抽奖
+                <i class="fas fa-gift"></i> 拆开盲盒
             </button>
-            
             <button id="backBtn" class="back-btn">
                 <i class="fas fa-home"></i> 返回首页
             </button>
         </footer>
         
-        <!-- 中奖弹窗 -->
+        <!-- 中奖弹窗（奖品图片、名称、悄悄话） -->
         <div id="resultModal" class="modal">
             <div class="modal-content">
                 <div class="modal-icon">🎉</div>
                 <h2 id="resultTitle">恭喜你中奖啦！</h2>
-                <p id="resultPrize">你抽中了：一等奖</p>
-                <button id="closeModal" class="modal-btn">确定</button>
+                <img id="prizeImage" class="modal-prize-image" src="" alt="奖品预览">
+                <div id="prizeName" class="prize-name"></div>
+                <div id="secretMessage" class="secret-message"></div>
+                <button id="closeModal" class="modal-btn">继续拆盒</button>
+            </div>
+        </div>
+        
+        <!-- 集齐7个彩蛋弹窗 -->
+        <div id="eggModal" class="modal egg-modal">
+            <div class="modal-content">
+                <div class="modal-icon">🏆</div>
+                <h2 style="color:#ffd700;">❤️ 集齐7份心意 ❤️</h2>
+                <div class="egg-message">NINA，这是瓜瓜为你准备的惊喜合集</div>
+                <div id="eggGrid" class="egg-grid"></div>
+                <button id="closeEggModal" class="modal-btn">珍藏回忆</button>
             </div>
         </div>
     </div>
     
-    <!-- 引入字体图标和彩纸效果 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
-    // 转盘抽奖系统 - 优化iOS兼容性版本
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('抽奖页面加载完成');
-        
-        // 奖品数据
+        // -------------------- 奖品数据（请务必自定义）--------------------
         const prizes = [
-            { id: 1, name: "一等奖", description: "iPhone 15 Pro", color: "#FF6B6B" },
-            { id: 2, name: "二等奖", description: "iPad Air", color: "#4ECDC4" },
-            { id: 3, name: "三等奖", description: "AirPods Pro", color: "#45B7D1" },
-            { id: 4, name: "四等奖", description: "小米手环", color: "#96CEB4" },
-            { id: 5, name: "五等奖", description: "100元红包", color: "#FECA57" },
-            { id: 6, name: "六等奖", description: "50元优惠券", color: "#FF9FF3" },
-            { id: 7, name: "七等奖", description: "谢谢参与", color: "#54A0FF" }
+            { 
+                id: 1, 
+                name: "礼物1", 
+                giftName: "趣味笔记本", 
+                color: "#FF6B6B", 
+                imageUrl: "images/1.png",      // 修改为你的图片路径
+                emoji: "🗺️",                         // 转盘上显示的图标
+                message: "无聊的时候就打开它吧，也许会收获意想不到的快乐哦~✏️" 
+            },
+            { 
+                id: 2, 
+                name: "礼物2", 
+                giftName: "心跳巧克力", 
+                color: "#4ECDC4", 
+                imageUrl: "images/2.jpg",
+                emoji: "🍫",
+                message: "希望你每天都能感受到巧克力般丝滑的愉悦~！💝" 
+            },
+            { 
+                id: 3, 
+                name: "礼物3", 
+                giftName: "Shining bag", 
+                color: "#45B7D1", 
+                imageUrl: "images/3.png",
+                emoji: "👜",
+                message: "亮片会黯淡，但你在人群中永远闪闪发光！✨👜" 
+            },
+            { 
+                id: 4, 
+                name: "礼物4", 
+                giftName: "小象摆件", 
+                color: "#96CEB4", 
+                imageUrl: "images/4.jpg",
+                emoji: "🐘",
+                message: "需要的时候可以把戒指交给小象保管~🐘💍" 
+            },
+            { 
+                id: 5, 
+                name: "礼物5", 
+                giftName: "纯棉睡眠帽", 
+                color: "#FECA57", 
+                imageUrl: "images/5.jpg",
+                emoji: "🧢",
+                message: "戴上帽子睡觉就不会被冷到我们呢小豆丁脑啦~🧢🌙" 
+            },
+            { 
+                id: 6, 
+                name: "礼物6", 
+                giftName: "多彩糖果盒玩具", 
+                color: "#FFA07A", 
+                imageUrl: "images/6.jpg",
+                emoji: "📱",
+                message: "没有手机的24小时，可以来找糖果玩具陪你通关快乐~🍬🎮" 
+            },
+            { 
+                id: 7, 
+                name: "礼物7", 
+                giftName: "1g马年黄金钞", 
+                color: "#6B8E23", 
+                imageUrl: "images/7.jpg",
+                emoji: "🐴",
+                message: "马年送你小金钞，以后的每一年都想送你金钞~💛" 
+            }
         ];
-        
-        // 状态变量
-        let isSpinning = false;
-        let currentRotation = 0;
-        let selectedPrize = null;
-        let animationId = null;
-        let startTimestamp = null;
-        
-        // 动画参数
-        const TOTAL_ROTATIONS = 5;
-        const ANIMATION_DURATION = 5000;
-        
-        // DOM元素
-        const wheelCanvas = document.getElementById('wheelCanvas');
-        const startBtn = document.getElementById('startBtn');
-        const backBtn = document.getElementById('backBtn');
-        const resultModal = document.getElementById('resultModal');
-        const resultTitle = document.getElementById('resultTitle');
-        const resultPrize = document.getElementById('resultPrize');
-        const closeModal = document.getElementById('closeModal');
-        
-        // 确保Canvas在iOS上有正确的高清渲染
-        function setupCanvas() {
-            const dpr = window.devicePixelRatio || 1;
-            const rect = wheelCanvas.getBoundingClientRect();
-            
-            wheelCanvas.width = rect.width * dpr;
-            wheelCanvas.height = rect.height * dpr;
-            
-            const ctx = wheelCanvas.getContext('2d');
-            ctx.scale(dpr, dpr);
-            
-            return ctx;
-        }
-        
-        // 初始化Canvas
-        const ctx = setupCanvas();
-        
-        // 绘制转盘
-        function drawWheel() {
-            const width = wheelCanvas.width / (window.devicePixelRatio || 1);
-            const height = wheelCanvas.height / (window.devicePixelRatio || 1);
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const radius = Math.min(centerX, centerY) - 10;
-            const sliceAngle = (2 * Math.PI) / prizes.length;
-            
-            // 清空画布
-            ctx.clearRect(0, 0, width, height);
-            
-            // 绘制每个扇形
-            for (let i = 0; i < prizes.length; i++) {
-                const startAngle = (i * sliceAngle) + currentRotation;
-                const endAngle = ((i + 1) * sliceAngle) + currentRotation;
-                
-                // 绘制扇形
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                ctx.fillStyle = prizes[i].color;
-                ctx.fill();
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                
-                // 绘制分隔线
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.lineTo(
-                    centerX + Math.cos(startAngle) * radius,
-                    centerY + Math.sin(startAngle) * radius
-                );
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                
-                // 绘制奖品文字
-                ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.rotate(startAngle + sliceAngle / 2);
-                ctx.textAlign = 'right';
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 14px -apple-system, sans-serif';
-                
-                // 显示奖品名称（短版）
-                const shortName = prizes[i].name.replace('等奖', '');
-                ctx.fillText(shortName, radius - 20, 0);
-                
-                ctx.restore();
+
+            // ========== ★ 惊喜出奖顺序（可自由调整） ==========
+            // 按 id 顺序排列：六等奖 → 五等奖 → 四等奖 → 三等奖 → 二等奖 → 一等奖 → 七等奖(谢谢参与/抱抱券)
+            const drawOrder = [1, 2, 3, 4, 5, 6, 7];   // 黄金钞最后登场
+
+            // ========== ★ 全局状态变量 ==========
+            let availablePrizes = [];      // 剩余奖品（按 drawOrder 顺序）
+            let drawnPrizes = [];         // 已抽中的奖品（按抽奖顺序）
+            let isSpinning = false;       // 转盘是否正在旋转
+            let currentRotation = 0;      // 当前转盘弧度
+            let selectedPrize = null;     // 当前抽中的奖品
+            let animationId = null;       // requestAnimationFrame ID
+            let startTimestamp = null;    // 动画开始时间戳
+            let eggShown = false;         // 彩蛋是否已展示（避免重复弹窗）
+
+            // ========== ★ DOM 元素 ==========
+            const wheelCanvas = document.getElementById('wheelCanvas');
+            const startBtn = document.getElementById('startBtn');
+            const backBtn = document.getElementById('backBtn');
+            const resultModal = document.getElementById('resultModal');
+            const prizeImage = document.getElementById('prizeImage');
+            const prizeNameEl = document.getElementById('prizeName');
+            const secretMessage = document.getElementById('secretMessage');
+            const closeModal = document.getElementById('closeModal');
+            const remainHint = document.getElementById('remainHint');
+            const eggModal = document.getElementById('eggModal');
+            const eggGrid = document.getElementById('eggGrid');
+            const closeEggModal = document.getElementById('closeEggModal');
+
+            // ========== ★ 初始化剩余奖品 ==========
+            function initRemainingPrizes() {
+                availablePrizes = drawOrder.map(id => {
+                    return prizes.find(p => p.id === id);
+                }).filter(p => p !== undefined);
+                drawnPrizes = [];
+                eggShown = false;          // 重置彩蛋标记
+                updateRemainHint();
             }
-            
-            // 绘制中心圆
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
-            ctx.fillStyle = '#ffd700';
-            ctx.fill();
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = '#ff6b6b';
-            ctx.stroke();
-            
-            // 绘制中心文字
-            ctx.fillStyle = '#1a1a2e';
-            ctx.font = 'bold 12px -apple-system, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('GO', centerX, centerY - 4);
-            ctx.fillText('LUCK', centerX, centerY + 6);
-        }
-        
-        // 开始抽奖
-        function startLottery() {
-            if (isSpinning) return;
-            
-            console.log('开始抽奖');
-            isSpinning = true;
-            startBtn.disabled = true;
-            startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 抽奖中...';
-            
-            // 随机选择一个奖品
-            const randomIndex = Math.floor(Math.random() * prizes.length);
-            selectedPrize = prizes[randomIndex];
-            console.log('抽中:', selectedPrize.name);
-            
-            // 开始旋转动画
-            rotateWheel();
-        }
-        
-        // 旋转转盘
-        function rotateWheel() {
-            const startRotation = currentRotation;
-            startTimestamp = null;
-            
-            // 计算每个奖品对应的角度
-            const sliceAngle = (2 * Math.PI) / prizes.length;
-            const prizeIndex = prizes.findIndex(p => p.id === selectedPrize.id);
-            
-            // 目标角度
-            const targetAngle = - (prizeIndex * sliceAngle) - (sliceAngle / 2) + (Math.PI / 2);
-            
-            // 额外的完整圈数
-            const extraRotations = TOTAL_ROTATIONS * 2 * Math.PI;
-            
-            // 最终目标角度
-            const finalTargetRotation = startRotation + extraRotations + targetAngle;
-            
-            // 停止之前的动画
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
-            
-            // 使用高性能的动画函数
-            function animate(timestamp) {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const elapsed = timestamp - startTimestamp;
-                const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
-                
-                // 缓动函数
-                let ease;
-                if (progress < 0.2) {
-                    // 前20%：快速启动
-                    ease = easeInQuad(progress / 0.2) * 0.2;
-                } else if (progress < 0.85) {
-                    // 中间65%：匀速旋转
-                    ease = 0.2 + (progress - 0.2) / 0.65 * 0.65;
-                } else {
-                    // 后15%：缓慢停止
-                    const lastProgress = (progress - 0.85) / 0.15;
-                    ease = 0.85 + easeOutQuad(lastProgress) * 0.15;
+
+            function updateRemainHint() {
+                if (remainHint) {
+                    remainHint.textContent = `剩余 ${availablePrizes.length} 个盲盒`;
                 }
+            }
+
+            // ========== ★ Canvas 高清适配 ==========
+            function setupCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = wheelCanvas.getBoundingClientRect();
+                wheelCanvas.width = rect.width * dpr;
+                wheelCanvas.height = rect.height * dpr;
+                const ctx = wheelCanvas.getContext('2d');
+                ctx.scale(dpr, dpr);
+                return ctx;
+            }
+            const ctx = setupCanvas();
+
+            // ========== ★ 绘制转盘（只显示 Emoji，隐藏所有文字） ==========
+            function drawWheel() {
+                const width = wheelCanvas.width / (window.devicePixelRatio || 1);
+                const height = wheelCanvas.height / (window.devicePixelRatio || 1);
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const radius = Math.min(centerX, centerY) - 10;
+                const sliceAngle = (2 * Math.PI) / prizes.length;  // 7 等分
+
+                ctx.clearRect(0, 0, width, height);
                 
-                // 计算当前角度
-                currentRotation = startRotation + (finalTargetRotation - startRotation) * ease;
-                
-                // 绘制转盘
-                drawWheel();
-                
-                // 继续动画或结束
-                if (progress < 1) {
-                    animationId = requestAnimationFrame(animate);
-                } else {
-                    // 动画完成
-                    currentRotation = finalTargetRotation;
-                    drawWheel();
+                for (let i = 0; i < prizes.length; i++) {
+                    const startAngle = (i * sliceAngle) + currentRotation;
+                    const endAngle = ((i + 1) * sliceAngle) + currentRotation;
                     
-                    // 显示结果
-                    setTimeout(showResult, 500);
+                    // 画扇形
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    ctx.fillStyle = prizes[i].color;
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // 白色分隔线
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(
+                        centerX + Math.cos(startAngle) * radius,
+                        centerY + Math.sin(startAngle) * radius
+                    );
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // 绘制 Emoji（完全隐藏奖品信息）
+                    ctx.save();
+                    ctx.translate(centerX, centerY);
+                    ctx.rotate(startAngle + sliceAngle / 2);
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = 'white';
+                    ctx.font = '28px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+                    ctx.fillText(prizes[i].emoji || '❓', radius - 25, 15);
+                    ctx.restore();
+                }
+                
+                // 中心盲盒图标
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ffd700';
+                ctx.fill();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.stroke();
+                
+                ctx.font = '32px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+                ctx.fillStyle = '#1a1a2e';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🎁', centerX, centerY);
+            }
+
+            // ========== ★ 抽奖逻辑（顺序出奖） ==========
+            function startLottery() {
+                if (isSpinning) return;
+                if (availablePrizes.length === 0) {
+                    alert('所有盲盒都已拆开！✨');
+                    return;
+                }
+
+                isSpinning = true;
+                startBtn.disabled = true;
+                startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 拆盒中...';
+
+                // 按顺序取出第一个奖品
+                selectedPrize = availablePrizes.shift();
+                drawnPrizes.push(selectedPrize);
+
+                updateRemainHint();
+                rotateWheel();
+            }
+
+            // ========== ★ 转盘动画（5秒多圈旋转） ==========
+            function rotateWheel() {
+                const startRotation = currentRotation;
+                startTimestamp = null;
+
+                const sliceAngle = (2 * Math.PI) / prizes.length;
+                const prizeIndex = prizes.findIndex(p => p.id === selectedPrize.id);
+                // 目标角度：指针顶部(-π/2) 对准奖品中心
+                const targetAngle = - (prizeIndex * sliceAngle) - (sliceAngle / 2) + (Math.PI / 2);
+                const extraRotations = 5 * 2 * Math.PI; // 转5圈
+                const finalTargetRotation = startRotation + extraRotations + targetAngle;
+
+                if (animationId) cancelAnimationFrame(animationId);
+
+                function animate(timestamp) {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const elapsed = timestamp - startTimestamp;
+                    const progress = Math.min(elapsed / 5000, 1); // 5秒
+
+                    // 三段缓动：快启 → 匀速 → 缓停
+                    let ease;
+                    if (progress < 0.2) {
+                        ease = easeInQuad(progress / 0.2) * 0.2;
+                    } else if (progress < 0.85) {
+                        ease = 0.2 + (progress - 0.2) / 0.65 * 0.65;
+                    } else {
+                        const lastProgress = (progress - 0.85) / 0.15;
+                        ease = 0.85 + easeOutQuad(lastProgress) * 0.15;
+                    }
+
+                    currentRotation = startRotation + (finalTargetRotation - startRotation) * ease;
+                    drawWheel();
+
+                    if (progress < 1) {
+                        animationId = requestAnimationFrame(animate);
+                    } else {
+                        currentRotation = finalTargetRotation;
+                        drawWheel();
+                        setTimeout(showResult, 400); // 轻微延迟，让转盘停稳
+                    }
+                }
+                animationId = requestAnimationFrame(animate);
+            }
+
+            function easeInQuad(t) { return t * t; }
+            function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+
+            // ========== ★ 展示中奖结果（奖品图、悄悄话） ==========
+            function showResult() {
+                isSpinning = false;
+
+                if (availablePrizes.length > 0) {
+                    startBtn.disabled = false;
+                    startBtn.innerHTML = '<i class="fas fa-gift"></i> 再拆一个';
+                    closeModal.textContent = '继续拆盒';   // 还有剩余奖品
+                } else {
+                    startBtn.disabled = true;
+                    startBtn.innerHTML = '<i class="fas fa-check"></i> 已集齐 7 份心意';
+                    closeModal.textContent = '查看惊喜';   // 全部抽完，引导彩蛋
+                }
+
+                // 填充弹窗信息
+                prizeImage.src = selectedPrize.imageUrl;
+                prizeImage.onerror = function() {
+                    this.src = 'https://via.placeholder.com/200?text=🎁'; // 图片加载失败时的占位
+                };
+                prizeNameEl.textContent = `${selectedPrize.name}：${selectedPrize.giftName}`;
+                secretMessage.textContent = selectedPrize.message || '瓜瓜给你的专属惊喜 ❤️';
+                
+                resultModal.style.display = 'flex';
+
+                // 彩纸庆祝（每次中奖都有）
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+                    setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0, y: 0.6 } }), 200);
+                    setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1, y: 0.6 } }), 400);
                 }
             }
-            
-            // 启动动画
-            animationId = requestAnimationFrame(animate);
-        }
-        
-        // 缓动函数
-        function easeInQuad(t) {
-            return t * t;
-        }
-        
-        function easeOutQuad(t) {
-            return 1 - (1 - t) * (1 - t);
-        }
-        
-        // 显示中奖结果
-        function showResult() {
-            isSpinning = false;
-            startBtn.disabled = false;
-            startBtn.innerHTML = '<i class="fas fa-redo"></i> 再次抽奖';
-            
-            // 更新弹窗内容
-            resultTitle.textContent = '恭喜你中奖啦！';
-            resultPrize.textContent = `你抽中了：${selectedPrize.name} - ${selectedPrize.description}`;
-            
-            // 显示弹窗
-            resultModal.style.display = 'flex';
-            
-            // 庆祝效果
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 150,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    decay: 0.9,
-                    startVelocity: 40
+
+            // ========== ★ 集齐彩蛋（主动触发） ==========
+            function showEggModal() {
+                // 生成所有已抽中礼物的缩略图网格
+                let html = '';
+                drawnPrizes.forEach(prize => {
+                    html += `
+                        <div class="egg-item">
+                            <img src="${prize.imageUrl}" alt="${prize.giftName}" onerror="this.src='https://via.placeholder.com/100?text=🎁'">
+                            <span>${prize.giftName}</span>
+                        </div>
+                    `;
                 });
+                eggGrid.innerHTML = html;
+                eggModal.style.display = 'flex';
                 
-                setTimeout(() => {
-                    confetti({
-                        particleCount: 100,
-                        angle: 60,
-                        spread: 55,
-                        origin: { x: 0, y: 0.6 },
-                        decay: 0.9
-                    });
-                }, 250);
-                
-                setTimeout(() => {
-                    confetti({
-                        particleCount: 100,
-                        angle: 120,
-                        spread: 55,
-                        origin: { x: 1, y: 0.6 },
-                        decay: 0.9
-                    });
-                }, 500);
+                // 特别彩纸雨
+                if (typeof confetti === 'function') {
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+                        }, i * 200);
+                    }
+                }
             }
-        }
-        
-        // 事件监听 - 优化iOS点击
-        startBtn.addEventListener('click', startLottery);
-        
-        // 为iOS添加额外的触摸事件支持
-        startBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            this.style.transform = 'scale(0.98)';
-        }, { passive: false });
-        
-        startBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            this.style.transform = 'scale(1)';
-            if (!isSpinning) {
-                startLottery();
-            }
-        }, { passive: false });
-        
-        backBtn.addEventListener('click', function() {
-            window.location.href = 'index.html';
+
+            // ========== ★ 事件监听 ==========
+            startBtn.addEventListener('click', startLottery);
+            // iOS 触摸优化
+            startBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.98)';
+            }, { passive: false });
+            startBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(1)';
+                if (!isSpinning && availablePrizes.length > 0) {
+                    startLottery();
+                }
+            }, { passive: false });
+
+            // 返回首页
+            backBtn.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+
+            // 关闭中奖弹窗 + 彩蛋触发逻辑
+            closeModal.addEventListener('click', function() {
+                if (availablePrizes.length === 0 && !eggShown) {
+                    // 抽完了且彩蛋尚未显示 → 关闭当前弹窗，弹出彩蛋
+                    resultModal.style.display = 'none';
+                    showEggModal();
+                    eggShown = true;
+                } else {
+                    // 正常关闭
+                    resultModal.style.display = 'none';
+                }
+            });
+
+            // 点击弹窗背景关闭（仅中奖弹窗）
+            resultModal.addEventListener('click', function(e) {
+                if (e.target === resultModal) {
+                    resultModal.style.display = 'none';
+                }
+            });
+
+            // 关闭彩蛋弹窗
+            closeEggModal.addEventListener('click', function() {
+                eggModal.style.display = 'none';
+            });
+            eggModal.addEventListener('click', function(e) {
+                if (e.target === eggModal) {
+                    eggModal.style.display = 'none';
+                }
+            });
+
+            // 窗口尺寸变化时重绘转盘
+            window.addEventListener('resize', function() {
+                setupCanvas();
+                drawWheel();
+            });
+
+            // ========== ★ 启动 ==========
+            initRemainingPrizes();
+            drawWheel();
+            console.log('惊喜盲盒版已启动！预设顺序:', drawOrder);
         });
-        
-        closeModal.addEventListener('click', function() {
-            resultModal.style.display = 'none';
-        });
-        
-        // 点击弹窗背景关闭
-        resultModal.addEventListener('click', function(e) {
-            if (e.target === resultModal) {
-                resultModal.style.display = 'none';
-            }
-        });
-        
-        // 重新绘制转盘
-        drawWheel();
-        
-        console.log('优化版抽奖系统初始化完成');
-    });
-</script>
+    </script>
 </body>
 </html>
